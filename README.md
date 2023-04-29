@@ -69,7 +69,7 @@ You can also define your function in the call to `Timer.on()`:
 ```js
 myTimer.on('start', () => { console.log('myTiimer started!') })
 ```
-When you need to dispose the event, but have no reference, use off with just the event type as an argument:
+When you need to dispose the event, but have no reference, use `Timer.off()` with just the event type as an argument:
 ```js
 myTimer.off('start') //this removes all actions added to start
 ```
