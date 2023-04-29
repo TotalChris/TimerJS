@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-
 </head>
 <body>
     <button id="buttonNew">Instantiate Timer</button>
@@ -22,49 +21,20 @@
     <script type="module">
         import Timer from './Timer.js'
         const timerDisplay = document.querySelector('#time');
-        const displayStart = () => {
-            timerDisplay.style.color = 'green';
-            timerDisplay.innerText = timer.getElapsed();
-        }
-        const displayTick = () => {
-            timerDisplay.innerText = timer.getElapsed();
-        }
-        const displayStop = () => {
-            timerDisplay.style.color = 'red';
-        }
-        const displayDone = () => {
-            timerDisplay.innerText = 'Timer Complete';
-        }
-        const displayReset = () => {
-            timerDisplay.innerText = '0';
-        }
+        const displayStart = () => {timerDisplay.style.color = 'green'; timerDisplay.innerText = timer.getElapsed(); }
+        const displayTick = () => { timerDisplay.innerText = timer.getElapsed(); }
+        const displayStop = () => { timerDisplay.style.color = 'red'; }
+        const displayDone = () => { timerDisplay.innerText = 'Timer Complete'; }
+        const displayReset = () => { timerDisplay.innerText = '0'; }
         let timer;
 
         window.addEventListener('load', () => {
-            document.querySelector('#buttonNew').addEventListener('click', () => {
-                instantiateTimer();
-            })
-
-            document.querySelector('#buttonDel').addEventListener('click', () => {
-                destantiateTimer();
-            })
-
-            document.querySelector('#buttonStart').addEventListener('click', () => {
-                timer.start();
-            });
-
-            document.querySelector('#buttonStop').addEventListener('click', () => {
-                timer.stop();
-            });
-
-            document.querySelector('#buttonReset').addEventListener('click', () => {
-                timer.reset();
-            });
-
-            document.querySelector('#buttonLimit').addEventListener('click', () => {
-                timer.setLimit((document.getElementById('limitInput').value === '' ? null : document.getElementById('limitInput').valueAsNumber));
-            });
-
+            document.querySelector('#buttonNew').addEventListener('click', () => { instantiateTimer(); })
+            document.querySelector('#buttonDel').addEventListener('click', () => { destantiateTimer(); })
+            document.querySelector('#buttonStart').addEventListener('click', () => { timer.start(); });
+            document.querySelector('#buttonStop').addEventListener('click', () => { timer.stop(); });
+            document.querySelector('#buttonReset').addEventListener('click', () => { timer.reset(); });
+            document.querySelector('#buttonLimit').addEventListener('click', () => { timer.setLimit((document.getElementById('limitInput').value === '' ? null : document.getElementById('limitInput').valueAsNumber)); });
             destantiateTimer(true);
         });
 
@@ -104,8 +74,6 @@
             timerDisplay.addEventListener('timer-reset', displayReset);
             timerDisplay.addEventListener('timer-done', displayDone);
         }
-
-
     </script>
 </body>
 </html>
