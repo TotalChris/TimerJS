@@ -5,9 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="Timer.js"></script>
+
 </head>
-<body onload="init()">
+<body>
     <button id="buttonNew">Instantiate Timer</button>
     <button id="buttonDel">Destantiate Timer</button>
     <button id="buttonStart">Start Timer</button>
@@ -19,32 +19,28 @@
     <button id="buttonLimit">Set Time Limit</button>
     <br>
     <h1 id="time"></h1>
-    <script>
+    <script type="module">
+        import Timer from './Timer.js'
+        const timerDisplay = document.querySelector('#time');
+        const displayStart = () => {
+            timerDisplay.style.color = 'green';
+            timerDisplay.innerText = timer.getElapsed();
+        }
+        const displayTick = () => {
+            timerDisplay.innerText = timer.getElapsed();
+        }
+        const displayStop = () => {
+            timerDisplay.style.color = 'red';
+        }
+        const displayDone = () => {
+            timerDisplay.innerText = 'Timer Complete';
+        }
+        const displayReset = () => {
+            timerDisplay.innerText = '0';
+        }
+        let timer;
 
-        function init(){
-            this.timerDisplay = document.querySelector('#time');
-
-            this.timerDisplay.addEventListener('timerStart', () => {
-                this.timerDisplay.style.color = 'green';
-                this.timerDisplay.innerText = this.timer.getElapsed();
-            });
-
-            this.timerDisplay.addEventListener('timerTick', () => {
-                this.timerDisplay.innerText = this.timer.getElapsed();
-            });
-
-            this.timerDisplay.addEventListener('timerStop', () => {
-                this.timerDisplay.style.color = 'red';
-            });
-
-            this.timerDisplay.addEventListener('timerComplete', () => {
-                this.timerDisplay.innerText = 'Timer Complete';
-            })
-
-            this.timerDisplay.addEventListener('timerReset', () => {
-                this.timerDisplay.innerText = '0';
-            })
-
+        window.addEventListener('load', () => {
             document.querySelector('#buttonNew').addEventListener('click', () => {
                 instantiateTimer();
             })
@@ -54,25 +50,25 @@
             })
 
             document.querySelector('#buttonStart').addEventListener('click', () => {
-                this.timer.start();
+                timer.start();
             });
 
             document.querySelector('#buttonStop').addEventListener('click', () => {
-                this.timer.stop();
+                timer.stop();
             });
 
             document.querySelector('#buttonReset').addEventListener('click', () => {
-                this.timer.reset();
+                timer.reset();
             });
 
             document.querySelector('#buttonLimit').addEventListener('click', () => {
-                this.timer.setLimit((document.getElementById('limitInput').value == '' ? null : document.getElementById('limitInput').valueAsNumber));
+                timer.setLimit((document.getElementById('limitInput').value === '' ? null : document.getElementById('limitInput').valueAsNumber));
             });
 
-            destantiateTimer();
-        }
+            destantiateTimer(true);
+        });
 
-        function destantiateTimer(){
+        function destantiateTimer(force){
             document.querySelector('#buttonStart').disabled = true;
             document.querySelector('#buttonStop').disabled = true;
             document.querySelector('#buttonReset').disabled = true;
@@ -80,10 +76,14 @@
             document.querySelector('#limitInput').disabled = true;
             document.querySelector('#buttonNew').disabled = false;
             document.querySelector('#buttonDel').disabled = true;
-            this.timerDisplay.style.color = 'black';
-            this.timerDisplay.innerText = 'Timer Destantiated';
-            this.timerExists = false;
-            this.timer = null;
+            timerDisplay.style.color = 'black';
+            timerDisplay.innerText = 'Timer Destantiated';
+            if(!force){
+                timer.stop();
+                timerDisplay.removeEventListener('timer-start', displayStart);
+                timer.unsubscribe(timerDisplay);
+            }
+            timer = null;
         }
 
         function instantiateTimer(){
@@ -94,11 +94,18 @@
             document.querySelector('#limitInput').disabled = false;
             document.querySelector('#buttonNew').disabled = true;
             document.querySelector('#buttonDel').disabled = false;
-            this.timerDisplay.style.color = 'red';
-            this.timerDisplay.innerText = 'Timer Instantiated';
-            this.timerExists = true;
-            this.timer = new Timer(this.timerDisplay);
+            timerDisplay.style.color = 'red';
+            timerDisplay.innerText = 'Timer Instantiated';
+            timer = new Timer();
+            timer.subscribe(timerDisplay);
+            timerDisplay.addEventListener('timer-start', displayStart);
+            timerDisplay.addEventListener('timer-tick', displayTick);
+            timerDisplay.addEventListener('timer-stop', displayStop);
+            timerDisplay.addEventListener('timer-reset', displayReset);
+            timerDisplay.addEventListener('timer-done', displayDone);
         }
+
+
     </script>
 </body>
 </html>

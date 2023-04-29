@@ -1,66 +1,104 @@
-class Timer {
-    constructor(timerElement){
-        this.timeElapsed = 0;
-        this.timeLimit = 0;
-        this.isRunning = false;
-        this.hasLimit = false;
-        this.timer = null;
-        this.timerEl = timerElement;
+export default class Timer {
+    #timeElapsed = 0;
+    #timeLimit = -1;
+    #isRunning = false;
+    #timerHasLimit = false;
+    timer = null;
+    timerEvents = {
+        start: {functions: [], listeners: [], eventLiteral: new CustomEvent('timer-start', {bubbles: true})},
+        stop: {functions: [], listeners: [], eventLiteral: new CustomEvent('timer-stop', {bubbles: true})},
+        reset: {functions: [], listeners: [], eventLiteral: new CustomEvent('timer-reset', {bubbles: true})},
+        done: {functions: [], listeners: [], eventLiteral: new CustomEvent('timer-done', {bubbles: true})},
+        tick: {functions: [], listeners: [], eventLiteral: new CustomEvent('timer-tick', {bubbles: true})},
+    };
 
-        this.timerStartEv = new CustomEvent('timerStart', {bubbles: true});
-        this.timerStopEv = new CustomEvent('timerStop', {bubbles: true});
-        this.timerResetEv = new CustomEvent('timerReset', {bubbles: true});
-        this.timerCompleteEv = new CustomEvent('timerComplete', {bubbles: true});
-        this.timerTickEv = new CustomEvent('timerTick', {bubbles: true});
+    subscribe(element, eventType){
+        if(eventType){
+            this.timerEvents[eventType].listeners.push(element);
+        } else {
+            for (let eType in this.timerEvents){
+                this.timerEvents[eType].listeners.push(element);
+            }
+        }
+    }
+
+    unsubscribe(element, eventType) {
+        if(eventType){
+            this.timerEvents[eventType].listeners = this.timerEvents[eventType].listeners.filter((l) => l !== element)
+        } else {
+            for (let eType in this.timerEvents){
+                this.timerEvents[eType].listeners = this.timerEvents[eType].listeners.filter((l) => l !== element);
+            }
+        }
+    }
+
+    on(eventType, func){
+        this.timerEvents[eventType].functions.push(func);
+    }
+
+    off(eventType, func){
+        if(func){
+            this.timerEvents[eventType].functions = this.timerEvents[eventType].functions.filter((f) => f !== func)
+        } else {
+            this.timerEvents[eventType].functions = [];
+        }
+    }
+
+    #runEvents(eventType){
+        this.timerEvents[eventType].functions.forEach((f, i) => {
+            f();
+        })
+        this.timerEvents[eventType].listeners.forEach((l, i) => {
+            l.dispatchEvent(this.timerEvents[eventType].eventLiteral)
+        })
     }
 
     start(){
-        this.isRunning = true;
+        this.#isRunning = true;
         this.timer = setInterval(() => {
-            this.runTimer();
+            this.#runTimer();
         }, 1000);
-        this.timerEl.dispatchEvent(this.timerStartEv);
+        this.#runEvents('start');
     }
 
     stop(){
         clearInterval(this.timer);
-        this.isRunning = false;
-        this.timerEl.dispatchEvent(this.timerStopEv);
+        this.#isRunning = false;
+        this.#runEvents('stop');
     }
 
     reset(){
-        this.stop();
-        this.timeElapsed = 0;
-        this.timerEl.dispatchEvent(this.timerResetEv);
+        this.#timeElapsed = 0;
+        this.#runEvents('reset');
     }
 
-    runTimer(){
-        this.timeElapsed++;
-        this.timerEl.dispatchEvent(this.timerTickEv);
-        if(this.hasLimit && (this.timeElapsed === this.timeLimit)){
+    #runTimer(){
+        this.#timeElapsed++;
+        this.#runEvents('tick');
+        if(this.#timerHasLimit && (this.#timeElapsed === this.#timeLimit)){
             this.stop();
-            this.timerEl.dispatchEvent(this.timerCompleteEv);
+            this.#runEvents('done');
         }
     }
 
     getElapsed(){
-        return this.timeElapsed;
+        return this.#timeElapsed;
     }
 
     setLimit(limit){
-        limit && (this.hasLimit = true);
-        limit && (this.timeLimit = limit);
+        limit ? (this.#timerHasLimit = true) : (this.#timerHasLimit = false);
+        limit ? (this.#timeLimit = limit) : (this.#timeLimit = -1);
     }
 
     getLimit(){
-        return this.timeLimit;
-    }
-
-    hasLimit(){
-        return this.hasLimit;
+        return this.#timeLimit;
     }
 
     getRemaining(){
-        return this.timeLimit - this.timeElapsed;
+        return this.#timeLimit - this.#timeElapsed;
+    }
+
+    hasLimit(){
+        return this.#timerHasLimit;
     }
 }
